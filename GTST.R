@@ -8,13 +8,14 @@ seq.len            = 64
 num.hidden         = 64
 num.embed          = 16
 num.lstm.layer     = 4
-num.round          = 32
+num.round          = 64
 learning.rate      = 0.1
 wd                 = 0.00001
 clip_gradient      = 1
 update.period      = 1
 train.val.fraction = 0.8
-################ ###################
+
+### #####
 
 
 
@@ -86,17 +87,25 @@ get.label = function(X) {
   return (label)
 }
 
-################### ##################################
+### ####
 
 
-############### import texts csv en create input data fro RNN #############
+
+############### import GTST samenvattingen from csv and create input data for RNN/LSTM #############
 
 gtst_daily_data = read_csv("data/GTST_Daily_data.csv", col_types = cols(datums = col_skip(),  datums2 = col_skip()))
 write.table(gtst_daily_data, "data/input2.txt", quote = FALSE, col.names = FALSE, row.names = FALSE )
 
 
 
-ret = make.data("data/input2.txt", seq.len=seq.len)
+
+############## create input arrays from input data data ################## 
+
+ret = make.data("data/input2.txt", seq.len=seq.len) #GTSTS
+
+ret = make.data("data/50shades.txt", seq.len=seq.len) ## 50 shades grey
+
+
 
 X             = ret$data
 dic           = ret$dic
@@ -117,11 +126,10 @@ X.val.label   = get.label(X.val.data)
 X.train       = list(data = X.train.data, label = X.train.label)
 X.val         = list(data = X.val.data, label = X.val.label)
 
-
 dim(X.train.data)
+### ####
 
-
-## Training Model
+############ Training LSTM Model ##############################
 
 tic <- proc.time()
 model <- mx.lstm(
@@ -153,11 +161,13 @@ infer.model = mx.lstm.inference(
   arg.params     = model$arg.params,
   ctx            = mx.cpu()
 )
+### ####
 
-#### generate text from model
+
+######### generate text from model ####################################
 
 start = 'a'
-seq.len = 1175
+seq.len = 2175
 random.sample = TRUE
 
 last.id = dic[[start]]
@@ -170,8 +180,9 @@ for (i in (1:(seq.len-1))) {
   last.id     = make.output(prob, random.sample)
   out         = paste0(out, lookup.table[[last.id]])
 }
+
 cat (paste0(out, "\n"))
-write.table(out, "GTST_SCRIPT_NEW.txt", col.names=FALSE, row.names = FALSE)
+write.table(out, "50_SHADES_NEW.txt", col.names=FALSE, row.names = FALSE)
 
 
 
