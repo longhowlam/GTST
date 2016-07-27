@@ -89,23 +89,17 @@ get.label = function(X) {
 
 ### ####
 
-
-
-############### import GTST samenvattingen from csv and create input data for RNN/LSTM #############
+############### import GTST (Dutch TV Soap) episode summaries from csv and create input data for RNN/LSTM #############
 
 gtst_daily_data = read_csv("data/GTST_Daily_data.csv", col_types = cols(datums = col_skip(),  datums2 = col_skip()))
 write.table(gtst_daily_data, "data/input2.txt", quote = FALSE, col.names = FALSE, row.names = FALSE )
 
-
-
-
 ############## create input arrays from input data data ################## 
 
-ret = make.data("data/input2.txt", seq.len=seq.len) #GTSTS
+ret = make.data("data/input2.txt", seq.len=seq.len) # GTSTS (Dutch texts)
 
-ret = make.data("data/50shades.txt", seq.len=seq.len) ## 50 shades grey
-
-
+## If you need something spicier, try the following text :-)
+ret = make.data("data/50shades.txt", seq.len=seq.len) 
 
 X             = ret$data
 dic           = ret$dic
@@ -181,6 +175,7 @@ for (i in (1:(seq.len-1))) {
   out         = paste0(out, lookup.table[[last.id]])
 }
 
+## print and write text to file
 cat (paste0(out, "\n"))
 write.table(out, "50_SHADES_NEW.txt", col.names=FALSE, row.names = FALSE)
 
